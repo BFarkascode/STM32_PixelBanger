@@ -52,12 +52,12 @@ All in all, the GRBW neopixel we will be using demands a 800 kHz signal with a v
 
 Of note, pixel strip signals should be separated by at least 80 us of blank signal (so NOT a LOW state, a blank 0% duty cycle PWM state) to indicate to the strip that the signal is over.
 
-###Pain on many levels
+### Pain on many levels
 As discussed above, the bitbanging signal we are to generate for the neopixels will need to be very accurate and relatively fast (a frequency of only 1/40 of the speed of our MCU running at 32 MHz). As such, we will be relying on the DMA in a rather complex fashion.
 
 This introduces multiple difficulties that are worth to touch upon.
 
-####Why DMA?
+#### Why DMA?
 Something that eluded me – since nobody touched upon within the projects I have checked – was the need to use a DMA. 1/40 slower than the clocking frequency of the L053 is fast, but not that fast that we can’t just do it “by hand”, using IRQs and while blocks, especially if we aren’t doing anything else with our MCU. We should be able to trigger the GPIO fast enough without a DMA…
 
 …in theory. In reality, there was a slight delay (for 800 kHz signal frequency, we dropped down to 769 kHz) every time the PWM period was updated which, eventually, added up into a rather significant delay. For a low number of pixels, this was fine, but if the actual purpose of the project was to have a reliable bitbang machine with pitch-perfect signals, this was a no-go. Just to give an estimate, writing to the 8th neopixel in the strip was actually changing the brightness on the 9th one when this approach was used.
